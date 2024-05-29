@@ -1,67 +1,109 @@
-//Make a function(Logic)
-
 const userModel = require("../models/userModels");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken"); // Corrected import statement
 
-//1. Creating user function
+// make a function(Logic)
+
+// 1. Creating a user function
 const createUser = async (req, res) => {
-  //1.Get data from the user(Fname, lname,email,pp)
   console.log(req.body);
-  //#.Destructuring
+
+  // destructuring
   const { firstName, lastName, email, password } = req.body;
-  //2.Valideation
   if (!firstName || !lastName || !email || !password) {
     return res.json({
       sucess: false,
-      massage: "Please enter all fields!",
+      message: "please enter all fields!",
     });
   }
-  //Try - Cath (Error handling)
   try {
-    //check if the user is already exist
     const existingUser = await userModel.findOne({ email: email });
     if (existingUser) {
       return res.json({
-        sucess: false,
+        success: false,
         message: "User Already Exists!",
       });
     }
-    const randomSalt = await bcrypt.genSalt(10);
-    const hasedPassword = await bcrypt.hash(password,randomSalt);
+    // Hash the password
+    const randomSalt = await bcrypt.genSalt();
+    const hashPassword = await bcrypt.hash(password, randomSalt);
 
-    //Save the user in database
+    // Save the User in Database Model
     const newUser = new userModel({
-      //Fields: Values recevied from user
       firstName: firstName,
       lastName: lastName,
       email: email,
-      password: hasedPassword,
+      password: hashPassword,
     });
-    //Actuwally save the user in database
+
+    // Saving the data in database
     await newUser.save();
-    //send the sucess resopnd
+
+    // Send the sucess responce
     res.json({
-      sucess: true,
-      message: "user created sucessfully!",
+      success: true,
+      message: "user created sucessfully",
     });
   } catch (error) {
     console.log(error);
-    res.jeson({
+    res.json({
       sucess: false,
-      message: "Server error!",
+      message: "Internal server error",
     });
   }
 };
+//Login User Function
+const loginUser = async (req, res) => {
+  //checking incoming data
+  console.log(req.body);
 
-//exporting
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.json({
+      success: false,
+      message: "Please enter all fields!",
+    });
+  }
+  try {
+    //1. find user, if not : stop the process
+    const user = await userModel.findOne({ email: email });
+
+    if (!user) {
+      return res.json({
+        success: false,
+        message: "User not Found",
+      });
+    }
+    //2. Compare the password, if not :stop the process
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return res.json({
+        success: false,
+        message: "Incorrect Password",
+      });
+    }
+    //3. generate JWT token
+
+    //3.1 Secret Decryption key(.env)
+    const token = await jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    //4. Send the token, userData , Message to the user
+    res.json({
+      success: true,
+      message: "User Logged Successful!",
+      token: token,
+      userData: user,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      success: false,
+      message: "Internal Server Error!",
+    });
+  }
+};
+// exporting the createuse
 module.exports = {
   createUser,
+  loginUser,
 };
-
-//Task
-//Controller-Routes-indexedDB.js
-//(Make a productController.js)
-//(Make a productRoutes.js)
-//(Link to index.js)
-//http://localhost:5000/api/product/create
-//response:Product API is working....! 

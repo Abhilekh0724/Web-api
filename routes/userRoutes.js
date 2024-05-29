@@ -7,5 +7,10 @@ const userControllers = require('../controllers/userControllers');
 
 router.post('/create', userControllers.createUser);
 
+//login user api
+router.post('/login',userControllers.loginUser)
+
+
+
 //exporting
 module.exports = router;

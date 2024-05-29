@@ -3,10 +3,24 @@ const express = require('express')
 const dotenv = require('dotenv');
 const mongoose= require('mongoose');
 const connectDB = require('./database/database');
+const cors=require('cors')
+const multipart=require('connect-multiparty')
+
 const app = express()
 // creting an express app
 //Json config
 app.use(express.json()) 
+
+//Accepting form data (json,image,video,audio etc)
+app.use(multipart)
+
+//CORS config
+const corsOptions={
+    origin:true,
+    credentials:true,
+    optionSuccessStatus:200
+}
+app.use(cors(corsOptions))
  
 const port = 5000;
 // Defining the port
@@ -24,6 +38,7 @@ app.get('/test',(req,res)=>{
 app.use('/api/user',require('./routes/userRoutes'))
 app.use('/api/reservations',require('./routes/reservationsRoutes'))
 app.use('/api/book-appointments',require('./routes/appointmentsRoutes'))
+app.use('/api/create-product',require('./routes/productRoutes'))
 
 // app.use('/api/product',require('./routes/productRoutes'))
 
