@@ -22,7 +22,7 @@ const corsOptions={
 }
 app.use(cors(corsOptions))
  
-const port = 5000;
+const port = 5500;
 // Defining the port
  
 //confiruration dotenv
@@ -36,8 +36,6 @@ app.get('/test',(req,res)=>{
 })
 //Configuring user routes
 app.use('/api/user',require('./routes/userRoutes'))
-app.use('/api/reservations',require('./routes/reservationsRoutes'))
-app.use('/api/book-appointments',require('./routes/appointmentsRoutes'))
 app.use('/api/create-product',require('./routes/productRoutes'))
 
 // app.use('/api/product',require('./routes/productRoutes'))
@@ -52,4 +50,4 @@ app.listen(port, () => console.log(`Example app listening on port ${port}!`))
 
 
 // API URL
-//http://localhost:5000/api/user/create
+//http://localhost:5500/api/user/create
